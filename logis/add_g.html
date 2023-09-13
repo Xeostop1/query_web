@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구글 주소검색</title>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+          }
+        li{
+            cursor: pointer;
+            list-style: none;
+        }
+        #add_input{
+            width: 300px;
+            height: 50px;
+        }
+    </style>    
+</head>
+<body>
+    <div id="map"></div>
+    <br>
+    <br>
+    <input type="text" placeholder="주소를 검색" id="add_input">
+    <ul id="results"></ul>
+
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
+
+<script>
+
+let map;
+let infowindow;
+
+function initMap() {
+  const sydney = new google.maps.LatLng(-33.867, 151.195);
+  infowindow = new google.maps.InfoWindow();
+  
+  map = new google.maps.Map(document.getElementById("map"), {
+      center: sydney,
+      zoom: 15,
+   });
+
+   const placesService = new google.maps.places.PlacesService(map);
+
+   let addressInput=document.querySelector("#add_input");
+   addressInput.addEventListener('input', function(e){
+       const address=e.target.value;
+       const autocompl = new google.maps.places.AutocompleteService();
+
+       autocompl.getPlacePredictions({ input: address }, function(predictions, status) {
+           if (status != google.maps.places.PlacesServiceStatus.OK) {
+               alert(status);
+               return;
+           }
+
+           document.querySelector('#results').innerHTML = '';
+           predictions.forEach(function(predi) {
+               let li = document.createElement('li');
+               li.textContent = predi.description;
+               li.addEventListener('click', function() {
+                addressInput.value = predi.description; 
+                placesService.getDetails({ placeId: predi.place_id }, function(place, status) {
+                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+                        // marker
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: place.geometry.location
+                        });
+                        // 클릭하면 마커 
+                        map.setCenter(place.geometry.location);
+                }
+           });
+       }); 
+       document.querySelector('#results').appendChild(li);
+   });
+});
+});
+}
+
+window.initMap = initMap;
+
+</script>
+
+</body>
+</html> 
