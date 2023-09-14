@@ -23,7 +23,10 @@
     <div id="map"></div>
     <br>
     <br>
-    <input type="text" placeholder="주소를 검색" id="add_input">
+    <form id="address-form">
+        <input type="text" placeholder="주소를 검색" id="add_input">
+        <input type="submit" value="Search">
+    </form>
     <ul id="results"></ul>
 
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
@@ -44,9 +47,10 @@ function initMap() {
 
    const placesService = new google.maps.places.PlacesService(map);
 
-   let addressInput=document.querySelector("#add_input");
-   addressInput.addEventListener('input', function(e){
-       const address=e.target.value;
+   let addressInput=document.querySelector("#address-form");
+   addressInput.addEventListener('submit', function(e){
+       e.preventDefault();  
+       const address=document.querySelector("#add_input").value;
        const autocompl = new google.maps.places.AutocompleteService();
 
        autocompl.getPlacePredictions({ input: address }, function(predictions, status) {
