@@ -20,18 +20,21 @@
             width: 300px;
             height: 50px;
         }
+
+        select {
+            width: 200px;
+            height: 50px;
+        }
     </style>
 </head>
 
 <body>
-
-
     <div id="map"></div>
-
 
     <br>
     <br>
     <form id="address-form">
+        <div id="s_container"></div>
         <input type="text" placeholder="주소 검색" id="add_input">
         <input type="submit" value="Search">
     </form>
@@ -42,6 +45,250 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
 
     <script>
+        //옵션값 더미 객체
+        const c_options = {
+            AD: "ANDORRA",
+            AE: "UNITED ARAB EMIRATES",
+            AF: "AFGHANISTAN",
+            AG: "ANTIGUA",
+            AI: "ANGUILLA",
+            AL: "ALBANIA",
+            AM: "ARMENIA",
+            AO: "ANGOLA",
+            AR: "ARGENTINA",
+            AS: "AMERICAN SAMOA",
+            AT: "AUSTRIA",
+            AU: "AUSTRALIA",
+            AW: "ARUBA",
+            AZ: "AZERBAIJAN",
+            BA: "BOSNIA-HERZEGOVINA",
+            BB: "BARBADOS",
+            BD: "BANGLADESH",
+            BE: "BELGIUM",
+            BF: "BURKINA FASO",
+            BG: "BULGARIA",
+            BH: "BAHRAIN",
+            BI: "BURUNDI",
+            BJ: "BENIN",
+            BM: "BERMUDA",
+            BN: "BRUNEI",
+            BO: "BOLIVIA",
+            BR: "BRAZIL",
+            BS: "BAHAMAS",
+            BT: "BHUTAN",
+            BW: "BOTSWANA",
+            BY: "BELARUS",
+            BZ: "BELIZE",
+            CD: "CONGO, DEMOCRATIC REPUBLIC OF",
+            CG: "CONGO",
+            CH: "SWITZERLAND",
+            CI: "IVORY COAST",
+            CK: "COOK ISLANDS",
+            CL: "CHILE",
+            CM: "CAMEROON",
+            CO: "COLOMBIA",
+            CR: "COSTA RICA",
+            CV: "CAPE VERDE",
+            CY: "CYPRUS",
+            CZ: "CZECH REPUBLIC",
+            DE: "GERMANY",
+            DJ: "DJIBOUTI",
+            DK: "DENMARK",
+            DM: "DOMINICA",
+            DO: "DOMINICAN REPUBLIC",
+            DZ: "ALGERIA",
+            EC: "ECUADOR",
+            EE: "ESTONIA",
+            EG: "EGYPT",
+            ER: "ERITREA",
+            ES: "SPAIN",
+            ET: "ETHIOPIA",
+            FI: "FINLAND",
+            FJ: "FIJI",
+            FM: "MICRONESIA",
+            FO: "FAEROE ISLANDS",
+            GA: "GABON",
+            GD: "GRENADA",
+            GE: "GEORGIA, REPUBLIC OF",
+            GF: "FRENCH GUIANA",
+            GH: "GHANA",
+            GI: "GIBRALTAR",
+            GL: "GREENLAND",
+            GM: "GAMBIA",
+            GN: "GUINEA",
+            GP: "GUADELOUPE",
+            GR: "GREECE",
+            GT: "GUATEMALA",
+            GU: "GUAM",
+            GY: "BRITISH GUYANA",
+            HN: "HONDURAS",
+            HR: "CROATIA",
+            HT: "HAITI",
+            HU: "HUNGARY",
+            ID: "INDONESIA",
+            IE: "IRELAND, REPUBLIC OF",
+            IL: "ISRAEL",
+            IN: "INDIA",
+            IQ: "IRAQ",
+            IS: "ICELAND",
+            IT: "ITALY",
+            JM: "JAMAICA",
+            JO: "JORDAN",
+            KE: "KENYA",
+            KG: "KYRGYZSTAN",
+            KH: "CAMBODIA",
+            KN: "NEVIS",
+            KW: "KUWAIT",
+            KY: "CAYMAN ISLANDS",
+            KZ: "KAZAKHSTAN",
+            LA: "LAOS",
+            LB: "LEBANON",
+            LC: "ST. LUCIA",
+            LI: "LIECHTENSTEIN",
+            LK: "SRI LANKA",
+            LR: "LIBERIA",
+            LS: "LESOTHO",
+            LT: "LITHUANIA",
+            LU: "LUXEMBOURG",
+            LV: "LATVIA",
+            LY: "LIBYA",
+            MA: "MOROCCO",
+            MC: "MONACO",
+            MD: "MOLDOVA",
+            ME: "MONTENEGRO",
+            MG: "MADAGASCAR",
+            MH: "MARSHALL ISLANDS",
+            MK: "MACEDONIA",
+            ML: "MALI",
+            MN: "MONGOLIA",
+            MO: "MACAU",
+            MP: "NORTHERN MARIANA ISLANDS",
+            MQ: "MARTINIQUE",
+            MR: "MAURITANIA",
+            MS: "MONTSERRAT",
+            MT: "MALTA",
+            MU: "MAURITIUS",
+            MV: "MALDIVES, REPUBLIC OF",
+            MW: "MALAWI",
+            MX: "MEXICO",
+            MY: "MALAYSIA",
+            MZ: "MOZAMBIQUE",
+            NA: "NAMIBIA",
+            NC: "NEW CALEDONIA",
+            NE: "NIGER",
+            NG: "NIGERIA",
+            NI: "NICARAGUA",
+            NL: "HOLLAND",
+            NO: "NORWAY",
+            NP: "NEPAL",
+            NZ: "NEW ZEALAND",
+            OM: "OMAN",
+            PA: "PANAMA",
+            PE: "PERU",
+            PF: "FRENCH POLYNESIA",
+            PG: "NEW GUINEA",
+            PH: "PHILIPPINES",
+            PK: "PAKISTAN",
+            PL: "POLAND",
+            PS: "PALESTINE AUTONOMOUS",
+            PT: "PORTUGAL",
+            PW: "PALAU",
+            PY: "PARAGUAY",
+            QA: "QATAR",
+            RE: "REUNION",
+            RO: "ROMANIA",
+            RS: "SERBIA",
+            RU: "RUSSIA",
+            RW: "RWANDA",
+            SA: "SAUDI ARABIA",
+            SC: "SEYCHELLES",
+            SE: "SWEDEN",
+            SG: "SINGAPORE",
+            SI: "SLOVENIA",
+            SK: "SLOVAK REPUBLIC",
+            SN: "SENEGAL",
+            SR: "SURINAME",
+            SV: "EL SALVADOR",
+            SZ: "SWAZILAND",
+            TC: "TURKS AND CAICOS ISLANDS",
+            TD: "CHAD",
+            TG: "TOGO",
+            TH: "THAILAND",
+            TL: "EAST TIMOR",
+            TN: "TUNISIA",
+            TO: "TONGA",
+            TR: "TURKEY",
+            TT: "TRINIDAD AND TOBAGO",
+            TW: "TAIWAN, REPUBLIC OF CHINA",
+            TZ: "TANZANIA",
+            UA: "UKRAINE",
+            UG: "UGANDA",
+            UY: "URUGUAY",
+            UZ: "UZBEKISTAN",
+            VC: "ST. VINCENT",
+            VE: "VENEZUELA",
+            VG: " BRITISH VIRGIN ISLANDS",
+            VI: "ST. CROIX ISLAND",
+            VN: "VIETNAM",
+            VU: "VANUATU",
+            WF: "WALLIS & FUTUNA ISLANDS",
+            WS: "SAMOA",
+            YE: "YEMEN, THE REPUBLIC OF",
+            ZA: "SOUTH AFRICA, REPUBLIC OF",
+            ZM: "ZAMBIA",
+            ZW: "ZIMBABWE"
+        }
+
+        function creat_s_country(countries) {
+            console.log("f1 시작")
+            let selectE = document.createElement("select")
+
+            //객체반복
+            for (let code in countries) {
+                console.log("for 2 시작")
+                let name = countries[code];
+                //create option
+                let optionE = document.createElement("option")
+                optionE.value = code;
+                optionE.text = name;
+                //append
+                selectE.appendChild(optionE);
+            }
+            //optionListener
+            selectE.addEventListener("change", function () {
+                console.log("optionListener 3 시작")
+
+                //select 요소 속성 변경금지!! options / selectedIndex
+                let seleted_n = this.options[this.selectedIndex].text;
+
+                //대문자 변경
+                seleted_n = seleted_n.toLowerCase().split(' ').map(function (word) {
+                    console.log("map 4 시작")
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+
+                document.querySelector("#add_input").value = seleted_n
+
+                console.log("input 5 넣기 시작")
+
+                let service = new google.maps.places.PlacesService(map);
+                service.findPlaceFromQuery({
+                    query: seleted_n,
+                    fields: ['geometry']
+                }, function (results, status) {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results[0]) {
+                        map.setCenter(results[0].geometry.location);  // 지도 중심 변경
+                    }
+                })
+            });
+            return selectE
+        }
+
+
+        let setSelet = creat_s_country(c_options)
+        document.querySelector("#s_container").appendChild(setSelet)
+
+
         let map;
         let infowindow;
         let placesService
