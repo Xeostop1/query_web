@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,84 +9,147 @@
         #map {
             width: 100%;
             height: 500px;
-          }
-        li{
+        }
+
+        li {
             cursor: pointer;
             list-style: none;
         }
-        #add_input{
+
+        #add_input {
             width: 300px;
             height: 50px;
         }
-    </style>    
+    </style>
 </head>
+
 <body>
+
+
     <div id="map"></div>
+
+
     <br>
     <br>
     <form id="address-form">
-        <input type="text" placeholder="주소를 검색" id="add_input">
+        <input type="text" placeholder="주소 검색" id="add_input">
         <input type="submit" value="Search">
     </form>
+    <input type='text' id='zipcode' placeholder='우편번호' readonly />
     <ul id="results"></ul>
 
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
 
-<script>
+    <script>
+        let map;
+        let infowindow;
+        let placesService
 
-let map;
-let infowindow;
+        function initMap() {
+            console.log("initMap 1")
+            //처음 주소값을 사용자 위치를 찾아내서 주면 안되나(어떻게 세팅하면 될지 생각!)
+            const sydney = new google.maps.LatLng(-33.867, 151.195);
+            infowindow = new google.maps.InfoWindow();
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: sydney,
+                zoom: 15,
+            });
+            placesService = new google.maps.places.PlacesService(map);
+        }//init
 
-function initMap() {
-  const sydney = new google.maps.LatLng(-33.867, 151.195);
-  infowindow = new google.maps.InfoWindow();
-  
-  map = new google.maps.Map(document.getElementById("map"), {
-      center: sydney,
-      zoom: 15,
-   });
 
-   const placesService = new google.maps.places.PlacesService(map);
+        let addressForm = document.querySelector("#address-form");
+        let addressInput = document.querySelector("#add_input");
+        //add_handler
+        addressForm.addEventListener('submit', function (e) {
+            console.log("add_handler 2")
+            e.preventDefault();
+            let address = document.querySelector("#add_input").value;
+            const autocompl = new google.maps.places.AutocompleteService();
 
-   let addressInput=document.querySelector("#address-form");
-   addressInput.addEventListener('submit', function(e){
-       e.preventDefault();  
-       const address=document.querySelector("#add_input").value;
-       const autocompl = new google.maps.places.AutocompleteService();
 
-       autocompl.getPlacePredictions({ input: address }, function(predictions, status) {
-           if (status != google.maps.places.PlacesServiceStatus.OK) {
-               alert(status);
-               return;
-           }
+            //자동주소
+            autocompl.getPlacePredictions({ input: address }, function (predictions, status) {
+                console.log("자동주소 3")
 
-           document.querySelector('#results').innerHTML = '';
-           predictions.forEach(function(predi) {
-               let li = document.createElement('li');
-               li.textContent = predi.description;
-               li.addEventListener('click', function() {
-                addressInput.value = predi.description; 
-                placesService.getDetails({ placeId: predi.place_id }, function(place, status) {
-                    if (status == google.maps.places.PlacesServiceStatus.OK) {
-                        // marker
-                        var marker = new google.maps.Marker({
-                            map: map,
-                            position: place.geometry.location
-                        });
-                        // 클릭하면 마커 
-                        map.setCenter(place.geometry.location);
+                if (status != google.maps.places.PlacesServiceStatus.OK) {
+                    console.error('Error_code 확인: ' + status);
+                    alert(status);
+                    return;
                 }
-           });
-       }); 
-       document.querySelector('#results').appendChild(li);
-   });
-});
-});
-}
 
-window.initMap = initMap;
+                //add_list
+                document.querySelector('#results').innerHTML = '';
+                predictions.forEach(function (predi) {
 
-</script>
+                    let li = document.createElement('li');
+                    //description O
+                    li.textContent = predi.description;
+                    //console.log('Set text content 2 :', li.textContent);
+                    //찾았다! li 생성하고 바로 어팬드 해야줘함 상식인데 으이
+                    document.querySelector('#results').appendChild(li);
+
+                    //list_click_handler
+                    li.addEventListener('click', function () {
+                        console.log("list_click_handler 4")
+                        placesService.getDetails({ placeId: predi.place_id }, function (place, status) {
+                            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                console.log("code->marker 5")
+                                var marker = new google.maps.Marker({
+                                    map: map,
+                                    position: place.geometry.location
+                                });
+                            }
+
+                            //zipcode_setting place.address_components 우편번호 없는거 확인 다른 api 찾거나 다른 객체로 가져와야 함 
+                            let postal_code = "";
+                            console.log("zipcode_setting 6")
+                            console.log(place.address_components)
+
+                            for (let i = 0; i < place.address_components.length; i++) {
+                                if (place.address_components[i].types.includes("postal_code")) {
+                                    postal_code = place.address_components[i].long_name;
+                                    console.log("postal_code 7: ", postal_code)
+                                    break;
+                                }
+                            }
+
+                            if (postal_code === "") {
+                                //얼럿 말고 포커스로 다시 인풋에 넣어주기→ 변경
+                                alert("우편번호를 찾을 수 없습니다. 상세한 주소를 입력해주세요.");
+                            } else {
+                                document.querySelector("#zipcode").value = postal_code;
+                            }
+                            //notion annote check!!! 23day
+                            document.querySelector("#zipcode").value = postal_code;
+                            addressInput.value = predi.description;
+                            addressInput.focus();
+
+                        })//list_click_handler
+
+                        //클릭시 마커 
+                        placesService.getDetails({ placeId: predi.place_id }, function (place, status) {
+                            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                // marker
+                                console.log('placesService_ 마커 8')
+                                var marker = new google.maps.Marker({
+                                    map: map,
+                                    position: place.geometry.location
+                                });
+                                map.setCenter(place.geometry.location);
+                            }//if
+                        });
+                        console.log("appendChild 9")
+                    });
+
+                });
+            });
+        });
+        window.initMap = initMap;
+
+    </script>
 
 </body>
-</html> 
+
+</html>
