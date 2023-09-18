@@ -25,33 +25,24 @@
             width: 200px;
             height: 50px;
         }
-
-        .input_add {
-            width: 300px;
-            height: 50px;
-        }
     </style>
 </head>
 
 <body>
     <div id="map"></div>
-
+    <p>샘플주소: Willem Woutersstraat 24 VLENDAM Nederland </p>
     <p>샘플주소 us 919 North Lincoln Street Apt 640 </p>
     <p>샘플주소 jp 919 東京都江東区東雲1-8-17長谷川ビル1F </p>
     <p>샘플주소 jp chiba sanmushi matuomachi hirone1422-1 </p>
     <p>샘플주소 co Carrera 7 # 66-10 apto 2004 </p>
     <p>샘플주소 ch 浙江省温州市瓯海区娄桥街道瓯海路1131号瓯商大厦19楼 </p>
 
-    <a href="./add_g_origin.html">oneLine_search</a>
+    <a href="./add_g.html">part_search</a>
     <br />
     <br />
     <form id="address-form">
         <div id="s_container"></div>
-        <!-- <input type="text" placeholder="주소 검색" id="add_input" /> -->
-        <!-- <input class="input_add" id="country" placeholder="Country" required> -->
-        <input class="input_add" id="city" placeholder="City" required>
-        <input class="input_add" id="street" placeholder="Street" required>
-        <input class="input_add" id="building-number" placeholder="Building Number">
+        <input type="text" placeholder="주소 검색" id="add_input" />
         <input type="hidden" id="hidden_country" />
         <input type="submit" value="Search" />
         <!-- <input type="submit" value="confirm" class="confirm" /> -->
@@ -265,8 +256,6 @@
         function creat_s_country(countries) {
             console.log("f1 시작");
             let selectE = document.createElement("select");
-            selectE.className = "input_add";
-            selectE.id = "country";
             //객체반복
             for (let code in countries) {
                 console.log("for 2 시작");
@@ -304,7 +293,6 @@
             return selectE;
         }
 
-
         let setSelet = creat_s_country(c_options);
         document.querySelector("#s_container").appendChild(setSelet);
         let map;
@@ -331,16 +319,8 @@
             console.log("add_handler 2");
             e.preventDefault();
             //let address = document.querySelector("#add_input").value;
-            //address = `${addressInput.value} ${document.querySelector("#hidden_country").value}`;
-
-            //필드 나눈 버전
-            let country = document.querySelector("#country").value;
-            let city = document.querySelector("#city").value;
-            let street = document.querySelector("#street").value;
-            let buildingNumber = document.querySelector("#building-number").value || '';
-            address = `${country} ${city} ${street} ${buildingNumber}`;
-
-
+            address = `${addressInput.value} ${document.querySelector("#hidden_country").value
+                }`;
             console.log("hidin add", address);
             const autocompl = new google.maps.places.AutocompleteService();
 
@@ -355,8 +335,7 @@
                         console.error("Error_code 확인: " + status);
                         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
                             alert("주소를 찾을 수 없습니다. 주소를 수정해주세요.");
-                            let cityInput = document.querySelector("#city");
-                            cityInput.focus();
+                            addressInput.focus();
                         }
                         else {
                             alert(status);
@@ -420,7 +399,7 @@
                                     //addressInput.value = predi.description;
                                     addressInput.value = place.formatted_address;
                                     addressInput.focus();
-                                    //맨뒤로 세팅
+                                    //마지막 포커스
                                     //addressInput.setSelectionRange(addressInput.value.length, addressInput.value.length);
                                     //시작 포커스
                                     addressInput.setSelectionRange(0, 0);
