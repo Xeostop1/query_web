@@ -61,30 +61,13 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
 
     <script>
-        //옵션값 더미 객체
-        const c_options = {
-            "en": "English",
-            "zh-CN": "Chinese",
-            "ja": "Japanese",
-            "es": "Spanish",
-            "fr": "French",
-            "de": "German",
-            "vi": "Vietnamese",
-            "th": "Thai",
-            "id": "Indonesian",
-            "it": "Italian",
-            "zh-HK": "Chinese HK"
-        }
 
         let seleted_c = {};
 
-
+        //셀렉트 때문에 만든것 삭제 
         function creat_s_country(countries) {
-            console.log("f1 시작");
             let selectE = document.createElement("select");
-            //객체반복
             for (let code in countries) {
-                console.log("for 2 시작");
                 let name = countries[code];
                 //create option
                 let optionE = document.createElement("option");
@@ -95,14 +78,9 @@
             }
             //optionListener
             selectE.addEventListener("change", function () {
-                console.log("optionListener 3 시작");
-                //select 요소 속성 변경금지!! options / selectedIndex
                 seleted_c.code = this.options[this.selectedIndex].value;
                 let seleted_n = seleted_c.name = this.options[this.selectedIndex].text;
-                console.log(seleted_n)
-
-
-                //대문자 변경
+                //대문자 변경 삭제
                 seleted_n = seleted_n
                     .toLowerCase()
                     .split(" ")
@@ -114,7 +92,6 @@
 
                 // 포커스 맨뒤로
                 document.querySelector("#hidden_country").value = `${seleted_n}`;
-                console.log("hidden_country", `${seleted_n}`);
             });
             return selectE;
         }
@@ -127,8 +104,6 @@
         let address;
 
         function initMap() {
-            console.log("initMap 1");
-            //처음 주소값을 사용자 위치를 찾아내서 주면 안되나(어떻게 세팅하면 될지 생각!)
             const sydney = new google.maps.LatLng(-33.867, 151.195);
             infowindow = new google.maps.InfoWindow();
             map = new google.maps.Map(document.getElementById("map"), {
@@ -142,7 +117,6 @@
         let addressInput = document.querySelector("#add_input");
         //add_handler
         addressForm.addEventListener("submit", function (e) {
-            console.log("add_handler 2");
             e.preventDefault();
             //let address = document.querySelector("#add_input").value;
             address = `${addressInput.value} ${document.querySelector("#hidden_country").value
@@ -157,7 +131,6 @@
                 //{ input: address },
                 function (predictions, status) {
                     console.log("자동주소 option 확인 3", seleted_c.code);
-
                     if (status != google.maps.places.PlacesServiceStatus.OK) {
                         console.error("Error_code 확인: " + status);
                         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -176,31 +149,25 @@
                         let li = document.createElement("li");
                         //description O
                         li.textContent = predi.description;
-                        //console.log('Set text content 2 :', li.textContent);
                         //찾았다! li 생성하고 바로 어팬드 해야줘함 상식인데 으이
                         document.querySelector("#results").appendChild(li);
 
                         //list_click_handler
                         li.addEventListener("click", function () {
-                            console.log("list_click_handler 4");
-                            //실제주소 영어 세팅 그전에는 세팅안해서 일부 한글로 나옴 
                             placesService.getDetails(
                                 //{ placeId: predi.place_id },
                                 //{ placeId: predi.place_id, language: "en" },
                                 { placeId: predi.place_id, language: seleted_c.code },
                                 function (place, status) {
                                     if (status == google.maps.places.PlacesServiceStatus.OK) {
-                                        console.log("code->marker 5");
                                         var marker = new google.maps.Marker({
                                             map: map,
                                             position: place.geometry.location,
                                         });
                                     }
-                                    //zipcode_setting place.address_components 우편번호 없는거 확인 다른 api 찾거나 다른 객체로 가져와야 함
+                                    //zipcode_setting place.address_components 우편번호 없을 시 사용자 직접 수정
                                     let postal_code = "";
-                                    console.log("zipcode_setting 6");
                                     console.log(place.address_components);
-
                                     for (let i = 0; i < place.address_components.length; i++) {
                                         if (
                                             place.address_components[i].types.includes(
@@ -208,23 +175,21 @@
                                             )
                                         ) {
                                             postal_code = place.address_components[i].long_name;
-
-                                            console.log("postal_code 7: ", postal_code);
                                             break;
                                         }
                                     }
 
                                     if (postal_code === "") {
-                                        //얼럿 말고 포커스로 다시 인풋에 넣어주기→ 변경
                                         alert(
                                             "우편번호를 찾을 수 없습니다. 상세한 주소를 입력해주세요."
                                         );
                                     } else {
                                         document.querySelector("#zipcode").value = postal_code;
                                     }
-                                    //notion annote check!!! 23day
                                     document.querySelector("#zipcode").value = postal_code;
+                                    //사용자가 직접쓴 주소 넣기
                                     //addressInput.value = predi.description;
+                                    //정확한 포맷팅 주소 넣기 
                                     addressInput.value = place.formatted_address;
                                     addressInput.focus();
                                     //마지막 포커스
@@ -240,7 +205,6 @@
                                 function (place, status) {
                                     if (status == google.maps.places.PlacesServiceStatus.OK) {
                                         // marker
-                                        console.log("placesService_ 마커 8");
                                         var marker = new google.maps.Marker({
                                             map: map,
                                             position: place.geometry.location,
@@ -266,7 +230,6 @@
                     }`;
                 console.log(address)
                 alert("db 접속");
-
             });
 
         window.initMap = initMap;
