@@ -12,6 +12,7 @@
         }
 
         li {
+
             cursor: pointer;
             list-style: none;
         }
@@ -25,20 +26,25 @@
             width: 200px;
             height: 50px;
         }
+
+        #zipcode {
+            display: inline-block;
+        }
+
+        #address-form {
+            display: inline-block;
+        }
     </style>
 </head>
 
 <body>
     <div id="map"></div>
-    <p>샘플주소: Willem Woutersstraat 24 VLENDAM Nederland </p>
-    <p>샘플주소 us 919 North Lincoln Street Apt 640 </p>
-    <p>샘플주소 jp 919 東京都江東区東雲1-8-17長谷川ビル1F </p>
-    <p>샘플주소 jp chiba sanmushi matuomachi hirone1422-1 </p>
-    <p>샘플주소 co Carrera 7 # 66-10 apto 2004 </p>
-    <p>샘플주소 ch 浙江省温州市瓯海区娄桥街道瓯海路1131号瓯商大厦19楼 </p>
+    <p><B>HK 3B Village Mansion, 11 Village Road, Happy Valley</B></p>
+    <p><B>PH Sheridan Building, Mayor P.N. Roa St, Cagayan de Oro, Misamis Oriental, 필리핀</B></p>
+    <p>JP chiba sanmushi matuomachi hirone1422-1 </p>
+    <p>CH 浙江省温州市瓯海区娄桥街道瓯海路1131号瓯商大厦19楼 </p>
 
-    <a href="./add_g.html">part_search</a>
-    <br />
+    <!-- <a href="./add_g.html">part_search</a> -->
     <br />
     <form id="address-form">
         <div id="s_container"></div>
@@ -57,199 +63,19 @@
     <script>
         //옵션값 더미 객체
         const c_options = {
-            US: "United States",
-            JP: "JAPAN",
-            AD: "ANDORRA",
-            AE: "UNITED ARAB EMIRATES",
-            AF: "AFGHANISTAN",
-            AG: "ANTIGUA",
-            AI: "ANGUILLA",
-            AL: "ALBANIA",
-            AM: "ARMENIA",
-            AO: "ANGOLA",
-            AR: "ARGENTINA",
-            AS: "AMERICAN SAMOA",
-            AT: "AUSTRIA",
-            AU: "AUSTRALIA",
-            AW: "ARUBA",
-            AZ: "AZERBAIJAN",
-            BA: "BOSNIA-HERZEGOVINA",
-            BB: "BARBADOS",
-            BD: "BANGLADESH",
-            BE: "BELGIUM",
-            BF: "BURKINA FASO",
-            BG: "BULGARIA",
-            BH: "BAHRAIN",
-            BI: "BURUNDI",
-            BJ: "BENIN",
-            BM: "BERMUDA",
-            BN: "BRUNEI",
-            BO: "BOLIVIA",
-            BR: "BRAZIL",
-            BS: "BAHAMAS",
-            BT: "BHUTAN",
-            BW: "BOTSWANA",
-            BY: "BELARUS",
-            BZ: "BELIZE",
-            CD: "CONGO, DEMOCRATIC REPUBLIC OF",
-            CG: "CONGO",
-            CH: "SWITZERLAND",
-            CI: "IVORY COAST",
-            CK: "COOK ISLANDS",
-            CL: "CHILE",
-            CM: "CAMEROON",
-            CO: "COLOMBIA",
-            CR: "COSTA RICA",
-            CV: "CAPE VERDE",
-            CY: "CYPRUS",
-            CZ: "CZECH REPUBLIC",
-            DE: "GERMANY",
-            DJ: "DJIBOUTI",
-            DK: "DENMARK",
-            DM: "DOMINICA",
-            DO: "DOMINICAN REPUBLIC",
-            DZ: "ALGERIA",
-            EC: "ECUADOR",
-            EE: "ESTONIA",
-            EG: "EGYPT",
-            ER: "ERITREA",
-            ES: "SPAIN",
-            ET: "ETHIOPIA",
-            FI: "FINLAND",
-            FJ: "FIJI",
-            FM: "MICRONESIA",
-            FO: "FAEROE ISLANDS",
-            GA: "GABON",
-            GD: "GRENADA",
-            GE: "GEORGIA, REPUBLIC OF",
-            GF: "FRENCH GUIANA",
-            GH: "GHANA",
-            GI: "GIBRALTAR",
-            GL: "GREENLAND",
-            GM: "GAMBIA",
-            GN: "GUINEA",
-            GP: "GUADELOUPE",
-            GR: "GREECE",
-            GT: "GUATEMALA",
-            GU: "GUAM",
-            GY: "BRITISH GUYANA",
-            HN: "HONDURAS",
-            HR: "CROATIA",
-            HT: "HAITI",
-            HU: "HUNGARY",
-            ID: "INDONESIA",
-            IE: "IRELAND, REPUBLIC OF",
-            IL: "ISRAEL",
-            IN: "INDIA",
-            IQ: "IRAQ",
-            IS: "ICELAND",
-            IT: "ITALY",
-            JM: "JAMAICA",
-            JO: "JORDAN",
-            KE: "KENYA",
-            KG: "KYRGYZSTAN",
-            KH: "CAMBODIA",
-            KN: "NEVIS",
-            KW: "KUWAIT",
-            KY: "CAYMAN ISLANDS",
-            KZ: "KAZAKHSTAN",
-            LA: "LAOS",
-            LB: "LEBANON",
-            LC: "ST. LUCIA",
-            LI: "LIECHTENSTEIN",
-            LK: "SRI LANKA",
-            LR: "LIBERIA",
-            LS: "LESOTHO",
-            LT: "LITHUANIA",
-            LU: "LUXEMBOURG",
-            LV: "LATVIA",
-            LY: "LIBYA",
-            MA: "MOROCCO",
-            MC: "MONACO",
-            MD: "MOLDOVA",
-            ME: "MONTENEGRO",
-            MG: "MADAGASCAR",
-            MH: "MARSHALL ISLANDS",
-            MK: "MACEDONIA",
-            ML: "MALI",
-            MN: "MONGOLIA",
-            MO: "MACAU",
-            MP: "NORTHERN MARIANA ISLANDS",
-            MQ: "MARTINIQUE",
-            MR: "MAURITANIA",
-            MS: "MONTSERRAT",
-            MT: "MALTA",
-            MU: "MAURITIUS",
-            MV: "MALDIVES, REPUBLIC OF",
-            MW: "MALAWI",
-            MX: "MEXICO",
-            MY: "MALAYSIA",
-            MZ: "MOZAMBIQUE",
-            NA: "NAMIBIA",
-            NC: "NEW CALEDONIA",
-            NE: "NIGER",
-            NG: "NIGERIA",
-            NI: "NICARAGUA",
-            NL: "HOLLAND",
-            NO: "NORWAY",
-            NP: "NEPAL",
-            NZ: "NEW ZEALAND",
-            OM: "OMAN",
-            PA: "PANAMA",
-            PE: "PERU",
-            PF: "FRENCH POLYNESIA",
-            PG: "NEW GUINEA",
-            PH: "PHILIPPINES",
-            PK: "PAKISTAN",
-            PL: "POLAND",
-            PS: "PALESTINE AUTONOMOUS",
-            PT: "PORTUGAL",
-            PW: "PALAU",
-            PY: "PARAGUAY",
-            QA: "QATAR",
-            RE: "REUNION",
-            RO: "ROMANIA",
-            RS: "SERBIA",
-            RU: "RUSSIA",
-            RW: "RWANDA",
-            SA: "SAUDI ARABIA",
-            SC: "SEYCHELLES",
-            SE: "SWEDEN",
-            SG: "SINGAPORE",
-            SI: "SLOVENIA",
-            SK: "SLOVAK REPUBLIC",
-            SN: "SENEGAL",
-            SR: "SURINAME",
-            SV: "EL SALVADOR",
-            SZ: "SWAZILAND",
-            TC: "TURKS AND CAICOS ISLANDS",
-            TD: "CHAD",
-            TG: "TOGO",
-            TH: "THAILAND",
-            TL: "EAST TIMOR",
-            TN: "TUNISIA",
-            TO: "TONGA",
-            TR: "TURKEY",
-            TT: "TRINIDAD AND TOBAGO",
-            TW: "TAIWAN, REPUBLIC OF CHINA",
-            TZ: "TANZANIA",
-            UA: "UKRAINE",
-            UG: "UGANDA",
-            UY: "URUGUAY",
-            UZ: "UZBEKISTAN",
-            VC: "ST. VINCENT",
-            VE: "VENEZUELA",
-            VG: " BRITISH VIRGIN ISLANDS",
-            VI: "ST. CROIX ISLAND",
-            VN: "VIETNAM",
-            VU: "VANUATU",
-            WF: "WALLIS & FUTUNA ISLANDS",
-            WS: "SAMOA",
-            YE: "YEMEN, THE REPUBLIC OF",
-            ZA: "SOUTH AFRICA, REPUBLIC OF",
-            ZM: "ZAMBIA",
-            ZW: "ZIMBABWE",
-        };
+            "en": "English",
+            "zh-CN": "Chinese",
+            "ja": "Japanese",
+            "es": "Spanish",
+            "fr": "French",
+            "de": "German",
+            "vi": "Vietnamese",
+            "th": "Thai",
+            "id": "Indonesian",
+            "it": "Italian",
+            "zh-HK": "Chinese HK"
+        }
+
         let seleted_c = {};
 
 
@@ -324,10 +150,11 @@
             console.log("hidin add", address);
             const autocompl = new google.maps.places.AutocompleteService();
 
-            //자동주소
+            //자동주소는 소비자 ip로 받고 
             autocompl.getPlacePredictions(
                 //{ input: address, language: seleted_c.code },
-                { input: address },
+                { input: address, language: "en" },
+                //{ input: address },
                 function (predictions, status) {
                     console.log("자동주소 option 확인 3", seleted_c.code);
 
@@ -343,7 +170,6 @@
                         return;
                     }
 
-
                     //add_list
                     document.querySelector("#results").innerHTML = "";
                     predictions.forEach(function (predi) {
@@ -357,8 +183,11 @@
                         //list_click_handler
                         li.addEventListener("click", function () {
                             console.log("list_click_handler 4");
+                            //실제주소 영어 세팅 그전에는 세팅안해서 일부 한글로 나옴 
                             placesService.getDetails(
-                                { placeId: predi.place_id },
+                                //{ placeId: predi.place_id },
+                                //{ placeId: predi.place_id, language: "en" },
+                                { placeId: predi.place_id, language: seleted_c.code },
                                 function (place, status) {
                                     if (status == google.maps.places.PlacesServiceStatus.OK) {
                                         console.log("code->marker 5");
@@ -367,7 +196,6 @@
                                             position: place.geometry.location,
                                         });
                                     }
-
                                     //zipcode_setting place.address_components 우편번호 없는거 확인 다른 api 찾거나 다른 객체로 가져와야 함
                                     let postal_code = "";
                                     console.log("zipcode_setting 6");

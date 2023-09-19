@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>메뉴바</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+	<link rel="stylesheet" href="./css/styles.css">
+	<script src="./script/index.js"></script>
+</head>
+<body>
+	<a href="./logis/lodis.html">택배사 조회</a>
+    <a href="./logis/output.html">그림번역</a>
+   <a href="./logis/add_g_origin.html">주소검색</a> 
+    <!--<a href="./logis/add_g.html">주소검색</a>-->
+    
+<div id="wrap">
+<%
+
+' url="SELECT prod_list.sysdate, prod_list.pcs_name, prod_list.pcs_price, main.name as main_cate, sub.name as sub_cate, main.dir_id, sub.up_id"
+' url=url&"FROM tb_sm021 AS main JOIN tb_sm021 AS sub ON main.dir_id = TRY_CAST(sub.up_id AS numeric) "
+' url=url&"JOIN TB_SM022 as prod_list ON sub.dir_id = prod_list.dir_id"
+' url=url&"WHERE prod_list.delyn='N'"
+' url=url&"ORDER BY prod_list.sysdate DESC,"
+' url=url&"prod_list.pcs_name ASC,"
+' url=url&"prod_list.pcs_price ASC;"
+
+
+'공통함수를 include	
+'asp 파일 확장자는 .html 로 지정
+'include 파일 확장자는 .inc 로 지정, /inc/ 폴더에 저장하세요.
+%>
+<!--#include virtual=/sb/inc/vbutil.inc-->
+
+<h1>SB INDEX</h1>
+root: http://bak2.gvg.co.kr/sb/<br>
+fto: ftp://43.228.162.14/sb/<br>
+<br>
+<%
+'sql문 선언	
+
+
+
+'sql="select dir_id,name from tb_sm021 where root_yn='Y'"
+'up_id가 varchar라서 TRY_CAST(sub.up_id AS numeric)
+' sql="SELECT main.name AS main, sub.name AS sub, main.dir_id, sub.up_id FROM tb_sm021 AS main JOIN tb_sm021 AS sub ON main.dir_id = TRY_CAST(sub.up_id AS numeric) WHERE main.Root_yn = 'Y' ORDER By main.dir_id, sub.up_id"
+sql="SELECT main.dir_id AS dir_id, sub.dir_id AS up_id, main.name AS main_name, sub.name AS sub_name FROM tb_sm021 AS main JOIN tb_sm021 AS sub ON main.dir_id = TRY_CAST(sub.up_id AS numeric) WHERE main.Root_yn = 'Y' ORDER BY dir_id, up_id"
+
+
+
+
+'sql문 실행 및 record Set 선언
+'sql 보고 싶으면 p 써야 한다구유 ㅠㅠ 제발
+response.write("<p>SQL: " & sql & "<br><br></p>")
+set rs=getRs(sql)
+
+
+
+' =========서버에서 바로 보여주기===========
+
+cur_name=""
+list_flag=false
+
+if not(rs.EOF or rs.BOF) then
+    dir_id = rs("dir_id") ' 
+    response.write("<div class='menu_bar'>")
+	do until rs.eof
+		if cur_name <> rs("main_name") then
+			if list_flag then response.write("</ol>")
+			response.write("<ol><li class='main'>" & rs("main_name") & "&darr;" & "</li>")
+			list_flag = true
+		End if
+
+        dir_id = rs("up_id")  
+        response.write("<div class='sub'><li><a href='list.asp?dir_id=" & dir_id & "'>" & rs("sub_name") & "</a></li></div>")
+
+		cur_name = rs("main_name")
+		rs.MoveNext
+	Loop
+	if list_flag then response.write("</ol>")
+End if
+response.write("</div>")	
+set rs=Nothing
+response.write("</div>")	
+set rs=Nothing
+
+
+%>
+</div>
+</body>
+</html>
