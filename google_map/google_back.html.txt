@@ -1,0 +1,203 @@
+<!--#inlude virtual=/inc/vbutil.inc-->
+<%
+cName=request("cName")	'영문국가명
+cCode=request("cCode")	'국가코드
+lCode=request("lCode")	'언어코드
+response.write "lCode: "&lCode&"<br>"
+response.write "cCode: "&cCode&"<br>"
+response.write "cName: "&cName&"<br>"
+%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>구글 주소검색</title>
+    <style>
+        #s_container{
+            overflow-y: scroll;
+        }
+        #map {
+            width: 100%;
+            height: 300px;
+        }
+        li {
+            cursor: pointer;
+            list-style: none;
+        }
+        #add_input {
+            width: 300px;
+            height: 50px;
+        }
+        #zipcode {
+            display: inline-block;
+        }
+
+        #address-form {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <br />
+    <!--여기 변경 submit 때문에 오류 -->
+    <!--폼지우고 변경 시 바로 결제로 넘어감 !! 조심 폼!은 안돼!-->
+   <form id="address-form">
+        <div id="s_container"></div>
+        <input type="text" placeholder="주소 검색" id="add_input" />
+        <input type="hidden" id="hidden_country" />
+        <!--<input type="submit" value="Search" />-->
+        <button type="submit" form="address-form" class="submit_btn">Search</button>
+        <button class="confirm">confirm</button>
+    </form>
+
+    <!--async → defer 교체-->
+    <script defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap">
+    </script>
+    <script>
+        let map;
+        let infowindow;
+        let placesService;
+        let address;
+        let lCode=request("lCode")
+        console.log("리퀘스트 확인 1");
+
+        function initMap() {
+            const sydney = new google.maps.LatLng(-33.867, 151.195);
+            infowindow = new google.maps.InfoWindow();
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: sydney,
+                zoom: 15,
+            });
+            placesService = new google.maps.places.PlacesService(map);
+        } //init
+
+        let addressForm = document.querySelector("#address-form");
+        let addressInput = document.querySelector("#add_input");
+        //add_handler
+        //submit 에서 변경 → 클릭 안됨! 
+        //let submit_btn=document.querySelector(".submit_btn")
+
+        addressForm.addEventListener("click", function (e) {
+            console.log("1 클릭");
+                if (!addressInput.value) {
+                    e.preventDefault();
+                    console.log("2 클릭");
+                    alert('주소를 입력해주세요.');
+                    return;
+                }
+            console.log("3 클릭");
+            e.preventDefault();
+            console.log("4 클릭");
+            address = `${addressInput.value} ${document.querySelector("#hidden_country").value
+                }`;
+            const autocompl = new google.maps.places.AutocompleteService();
+            //자동주소는 lCode
+            autocompl.getPlacePredictions(
+                { input: address, language: lCode },
+                //{ input: address },
+                console.log("1 lCode: ",lCode);
+                function (predictions, status) {
+                    if (status != google.maps.places.PlacesServiceStatus.OK) {
+                        console.error("Error_code 확인: " + status);
+                        if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                            alert("주소를 찾을 수 없습니다. 주소를 수정해주세요.");
+                            addressInput.focus();
+                        }
+                        else {
+                            alert(status);
+                        }
+                        return;
+                    }
+
+                    //add_list
+                    document.querySelector("#results").innerHTML = "";
+                    predictions.forEach(function (predi) {
+                        let li = document.createElement("li");
+                        //나오는것 보고 formatted_address 변경 가능 
+                        li.textContent = predi.description;
+                        document.querySelector("#results").appendChild(li);
+
+                        //주소리스트 클릭 
+                        li.addEventListener("click", function () {
+                            placesService.getDetails(
+                                //{ placeId: predi.place_id },
+                                { placeId: predi.place_id, language: "en" },
+                                //{ placeId: predi.place_id, language: seleted_c.code },
+                                function (place, status) {
+                                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                        var marker = new google.maps.Marker({
+                                            map: map,
+                                            position: place.geometry.location,
+                                        });
+                                    }
+                                    //zipcode_setting place.address_components 우편번호 없을 시 사용자 직접 수정
+                                    let postal_code = "";
+                                    console.log(place.address_components);
+                                    for (let i = 0; i < place.address_components.length; i++) {
+                                        if (
+                                            place.address_components[i].types.includes(
+                                                "postal_code"
+                                            )
+                                        ) {
+                                            postal_code = place.address_components[i].long_name;
+                                            break;
+                                        }
+                                    }
+
+                                    if (postal_code === "") {
+                                        alert(
+                                            "우편번호를 찾을 수 없습니다. 상세한 주소를 입력해주세요."
+                                        );
+                                    } else {
+                                        document.querySelector("#zipcode").value = postal_code;
+                                    }
+                                    document.querySelector("#zipcode").value = postal_code;
+                                    //사용자가 직접쓴 주소 넣기
+                                    //addressInput.value = predi.description;
+                                    //정확한 포맷팅 주소 넣기 
+                                    addressInput.value = place.formatted_address;
+                                    addressInput.focus();
+                                    //시작 포커스
+                                    addressInput.setSelectionRange(0, 0);
+
+                                }
+                            ); 
+                            placesService.getDetails(
+                                { placeId: predi.place_id },
+                                function (place, status) {
+                                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                        // marker
+                                        var marker = new google.maps.Marker({
+                                            map: map,
+                                            position: place.geometry.location,
+                                        });
+                                        map.setCenter(place.geometry.location);
+                                    } 
+                                }
+                            );
+                        });
+                    });
+                }
+            );
+        });
+        document
+            .querySelector(".confirm")
+            .addEventListener("click", function (e) {
+                e.preventDefault();
+                if (!window.confirm("주소가 맞으면 확인을 눌러주세요")) {
+                    return;
+                }
+                let address = `${addressInput.value} ${document.querySelector("#hidden_country").value
+                    }`;
+                console.log(address)
+                alert("db 접속");
+            });
+
+        window.initMap = initMap;
+    </script>
+</body>
+
+</html>
