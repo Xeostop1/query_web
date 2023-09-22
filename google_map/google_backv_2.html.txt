@@ -1,0 +1,249 @@
+<style>
+    #wrap {}
+
+    #map {
+        width: 100%;
+        height: 250px;
+        display: none;
+    }
+
+    li {
+        cursor: pointer;
+        list-style: none;
+        /* 전체 li에 들어갔음 와이?? */
+        /* margin-left: 10px;
+            padding-bottom: 5px; */
+    }
+
+    #add_input {
+        width: 90%;
+        border: 0;
+        border: none;
+        outline: none;
+        background: none;
+        cursor: text;
+        /* 상단위치 화면에 따라 변경 必 */
+        margin-top: -45px;
+        margin-left: 20px;
+        font-size: 1.5em !important;
+        /* !important; 정확히 왜 안되는지 모르겠네*/
+    }
+
+    #add_input::placeholder {
+        font-size: 1.5em;
+        color: #c2c2c2;
+        padding-right: 40px;
+    }
+
+    /* #add_input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+            } */
+
+    .search_btn {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3C!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --%3E%3Cpath d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z'/%3E%3C/svg%3E");
+        background-size: cover;
+        margin-top: -45px;
+
+    }
+
+    #zipcode {
+        display: inline-block;
+    }
+
+    #address-form {
+        display: inline-block;
+    }
+
+    .confirm {
+        width: 100px;
+        height: 25px;
+        text-align: center;
+        /* 포지션으로 변경 必*/
+        margin-left: 721px;
+        background: black;
+        color: #fff;
+        font-size: 1.3em;
+        border-radius: 2px;
+        /* display: none; */
+        margin-top: -35px;
+    }
+
+    .add_li {
+        font-size: 1.5em;
+        padding: 5px 5px 5px 30px;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+
+    .add_li:first-child {
+        margin-top: -9px;
+    }
+</style>
+</head>
+
+<body>
+    <% cName=request("cName") '영문국가명
+    cCode=request("cCode")	' 국가코드 lCode=request("lCode") '언어코드
+    if cCode="HK" then initialZipCode="070"
+    
+    ' response.write "lCode: " &lCode&"<br>"
+        ' response.write "cCode: "&cCode&"<br>"
+        ' response.write "cName: "&cName&"<br>"
+        ' %>
+        <div id="wrap">
+
+            <br />
+            <div id="s_container"></div>
+            <input id="add_input" type="text" class="submitonenter" submit="mySubmit"
+                placeholder="Ex) Willem Woutersstraat 24, Volendam, Netherlands" />
+            <a href="javascript:void(0);" class="search_btn"></a>
+            <a href="javascript:void(0);" class="confirm"> confirm</a>
+            <hr>
+            <input type="hidden" id="hidden_country" />
+            <input type="hidden" id="lCode" value=<%=lCode%>/>
+            <input type="hidden" id="cName" value=<%=cName%>/>
+            <input type="hidden" id="cCode" value=<%=cCode%>/>
+            <!--이거 밖으로 같이 보내야 돼!value-->
+            <input value="<%=initialZipCode%>" type="hidden" id="zipcode" placeholder="우편번호" readonly />
+
+            
+            <!--<button class="confirm">confirm</button>-->
+            <ul id="results"></ul>
+            <div id="map"></div>
+        </div>
+        <script type="text/javascript">
+            //포커스 
+            $(document).ready(function () {
+                $("#add_input").focus();
+            });
+
+            var map;
+            var infowindow;
+            var placesService;
+            var address;
+            var addInput = $("#add_input");
+
+            function initMap() {
+                var sydney = new google.maps.LatLng(-33.867, 151.195);
+                infowindow = new google.maps.InfoWindow();
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: sydney,
+                    zoom: 15,
+                });
+                placesService = new google.maps.places.PlacesService(map)
+            } //init
+
+            var search_btn = $(".search_btn");
+            search_btn.on("click", function (e) {
+                mySubmit(e)
+            });
+
+            //submit= mySubmit() 함수넣고 마무리! 
+            function mySubmit(e) {
+                e.preventDefault()
+                // var address = `${addInput.val()} ${$("#hidden_country").val()}`;
+                var lCode = $("#lCode").val();
+                var zipcodeInput = $("#zipcode");
+                address = `${addInput.val()} ${$("#hidden_country").val()}`;
+                const autocompl = new google.maps.places.AutocompleteService();
+                //*****자동주소는 lCode사용
+                autocompl.getPlacePredictions(
+                    { input: address, language: lCode },
+                    function (predictions, status) {
+                        if (status != google.maps.places.PlacesServiceStatus.OK) {
+                            console.error("Error_code 확인: " + status);
+                            //*****상세주소 X, 사용자 직접 수정
+                            if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                                alert("주소를 찾을 수 없습니다. 상세주소 정확히 직접 적어주세요.");
+                                $("#wrap").scrollTop(0);
+                                addInput.focus();
+                                $("#zipcode").removeAttr("readonly")
+                                $("#zipcode").focus()
+                            }
+                            else alert(status);
+                            return;
+                        }
+
+
+                        //add_list
+                        $("#results").html("");
+                        predictions.forEach(function (predi) {
+                            var li = $('<li class="add_li"></li>');
+                            //나오는것 보고 formatted_address 변경 가능(정확한 주소)
+                            // li.text(predi.formatted_address);
+                            li.text(predi.description);
+                            $("#results").append(li);
+                            //주소리스트 클릭 → 확인 버튼 나타나기
+                            li.on("click", function () {
+                                placesService.getDetails(
+                                    { placeId: predi.place_id, language: "en" },
+                                    //{ placeId: predi.place_id, language: seleted_c.code },
+                                    function (place, status) {
+                                        if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                            var marker = new google.maps.Marker({
+                                                map: map,
+                                                position: place.geometry.location,
+                                            });
+                                        }
+                                        //zipcode_setting place.address_components 우편번호 없을 시 사용자 직접 수정
+                                        let postal_code = "";
+                                        console.log(place.address_components);
+                                        for (let i = 0; i < place.address_components.length; i++) {
+                                            if (place.address_components[i].types.includes("postal_code")) {
+                                                postal_code = place.address_components[i].long_name;
+                                                break;
+                                            }
+                                        }
+                                        if (postal_code === "") {
+                                            alert("우편번호를 찾을 수 없습니다. 상세한 주소한 주소와 우편번호를 입력해주세요.");
+                                            $("#zipcode").removeAttr("readonly")
+                                            // addInput.val(place.formatted_address).focus();
+                                            $("#zipcode").focus()
+                                        }
+                                        else $("#zipcode").val(postal_code);
+
+                                        // $("#zipcode").val(postal_code);
+                                        //사용자가 직접쓴 주소 넣기
+                                        // addInput.val(predi.description).focus();
+                                        //정확한 포맷팅 주소 넣고 포커스 → formatted_address(정확한주소)사용으로 바로 영문으로 입력
+                                        addInput.val(place.formatted_address).focus();
+                                    }
+                                );
+                                //상세정보 가져옴→ 이안에 마커는 주석 
+                                placesService.getDetails(
+                                    { placeId: predi.place_id },
+                                    function (place, status) {
+                                        if (status == google.maps.places.PlacesServiceStatus.OK) { }
+                                    })
+                            })
+                        });
+                    });
+            }
+            // map 초기화 장소
+            $(".confirm").on("click", function (e) {
+                // 클릭을 하면 두개의 위치가 변하는 걸로 변경! 아이콘 두개가 너무 거슬림!
+                e.preventDefault();
+                if (window.confirm("정확한 주소를 적어야 배송이 가능합니다. 주소가 맞으면 확인을 눌러주세요")) {
+                    address = `${addInput.val()} ${$("#hidden_country").val()}`;
+                    $("#recv_addr2").val(address);
+                    $("#recv_zip").val()
+                    $("#div_zipwrap").slideToggle();
+
+                    return;
+                }
+                else {
+                    $("#zipcode").removeAttr("readonly")
+                    $("#zipcode").focus();
+                }
+            });
+
+            window.initMap = initMap;
+        </script>
+        <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlp3ZFcVhVXXorS_kpaaQ3vXk4hm-_Qa0&libraries=places&callback=initMap"></script>
+</body>
+
+</html>
