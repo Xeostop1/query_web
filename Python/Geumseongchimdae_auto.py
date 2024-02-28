@@ -21,14 +21,8 @@ driver = webdriver.Chrome(service=Service(
     ChromeDriverManager().install()), options=options)
 
 # 웹사이트 접속
-driver.get('https://hosting.cafe24.com/?controller=new_member&method=login&sec=on&ref=%2F%3Fcontroller%3Dmyservice_hosting_main')
+driver.get('https://www.ksbed.co.kr/goods/goods_list.php?cateCd=002&sort=&pageNum=40#')
 
-# 카페 24 로그인 
-username = driver.find_element(By.ID, 'loginId')  
-password = driver.find_element(By.ID, 'loginPasswd')  
-username.send_keys('gvgurbanstore')
-password.send_keys('iLq-ILS-3pi-ifb')
-print(f'username 로 접속')
 
 login_button = driver.find_element(By.ID, 'idLoginBtn')  
 login_button.click()
